@@ -14,7 +14,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8, style={'input_type': 'password'})
     class Meta:
         model = User
-        fields = ['user_id', 'username', 'email', 'first_name', 'last_name', 'phone_number', 'activity', 'password']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'phone_number', 'activity', 'password']
         extra_kwargs = {
             'password': {'required': True}
         }

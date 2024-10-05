@@ -1,18 +1,19 @@
-import { useState } from 'react'
-import './assets/css/style.css'
-import Header from './components/Header'
-import { Main } from './components/Main'
-import Footer from './components/Footer'
-import Register from './components/Register'
-import {BrowserRouter, Routes, Route} from "react-router-dom"
-import Login from './components/Login'
-
+import { useState } from 'react';
+import './assets/css/style.css';
+import Header from './components/Header';
+import { Main } from './components/Main';
+import Footer from './components/Footer';
+import Register from './components/Register';
+import {BrowserRouter, Routes, Route} from "react-router-dom";
+import Login from './components/Login';
+import AuthProvider from './AuthProvider';
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
+      <AuthProvider>
         <BrowserRouter>
           <Header />
             <Routes>
@@ -22,6 +23,7 @@ function App() {
             </Routes>
           <Footer />
         </BrowserRouter>
+      </AuthProvider>
     </>
   )
 }

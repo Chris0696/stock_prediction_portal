@@ -10,7 +10,7 @@ class UserManager(BaseUserManager):
             raise ValueError("The email is not given.")
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
-        user.is_active = True
+        # user.is_active = True
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -44,7 +44,7 @@ class User(AbstractBaseUser):
     email = models.EmailField(max_length=150, unique=True)
     phone_number = models.CharField(max_length=15, blank=True)
     activity = models.SmallIntegerField(choices=ROLE_CHOICES)
-    user_id = models.UUIDField(default=uuid.uuid4, unique=True,
+    id = models.UUIDField(default=uuid.uuid4, unique=True,
                           primary_key=True, editable=False)
 
 
