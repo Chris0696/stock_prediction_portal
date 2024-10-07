@@ -14,9 +14,17 @@ const Login = () => {
   const [error, setError] = useState('');
   const {isLoggedIn, setIsLoggedIn} = useContext(AuthContext);
 
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    // Validation on the customer's side
+    if (!email || !password) {
+        setError('Email and password are required');
+        setLoading(false);
+        return;
+      }
 
     const userData = {email, password}
     console.log('userData===>', userData);
@@ -27,15 +35,14 @@ const Login = () => {
         localStorage.setItem('refreshToken', response.data.refresh)
         console.log('Login successful');
         setIsLoggedIn(true);
-        navigate('/');
-    }catch (error) {
-      console.error('Invalid credentials');
-      setError('Invalid credentials')
-    }finally {
-      setLoading(false);
-    }
-    
-  };
+        navigate('/dashboard');
+    } catch (error) {
+        console.error('Invalid credentials.');
+        setError('Invalid credentials');
+      } finally {
+        setLoading(false);
+      }
+    };
 
 
   return (
