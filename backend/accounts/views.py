@@ -13,18 +13,15 @@ from django.contrib.auth import login
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
-
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = CreateUserSerializer
     permission_classes = (AllowAny,)
 
 
-
 class UdapteUserView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UpdateUserSerializer
-
 
 
 class LoginAPIView(APIView):

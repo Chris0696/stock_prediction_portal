@@ -11,8 +11,6 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'activity', 'password']
 
-    
-    
 
 class CreateUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8, style={'input_type': 'password'})
@@ -33,17 +31,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
     
-    # def create(self, validated_data):
-    #     #  User.objects.create = save the password in a plain text
-    #     #  User.objects.create_user = automatically hash password
-    #     user = User.objects.create_user(
-    #         validated_data['username'],
-    #         validated_data['email'],
-    #         validated_data['password'],
-    #     )
-    #     #  User.objects.create_user(**validated_data)
-    #     return user
-    
 
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,7 +44,6 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         instance = super().update(instance, validated_data)
         return instance
     
-
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

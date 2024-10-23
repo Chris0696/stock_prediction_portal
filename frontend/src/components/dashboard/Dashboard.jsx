@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const Dashboard = () => {
-
+    const [rates, setRates] = useState([]); 
     const [ticker, setTicker] = useState('');
     const [error, setError] = useState();
     const [loading, setLoading] = useState(false);
@@ -15,6 +15,13 @@ const Dashboard = () => {
     const [mse, setMSE] = useState();
     const [rmse, setRMSE] = useState();
     const [r2, setR2] = useState();
+    
+    const [start_date, setStartDate] = useState('2024-08-01'); // Start date par défaut
+
+    const currentDate = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+    const [end_date, setEndDate] = useState(currentDate); // Date du jour actuel
+    const [ticker_period, setTickerPeriod] = useState('1DAY'); // Période par défaut (1 jour)
+
 
     useEffect(() => {
         
@@ -36,18 +43,44 @@ const Dashboard = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        try{
+        
+        // Date validation
+        if (new Date(start_date) > new Date(end_date)) {
+            setError("La date de début ne peut pas être supérieure à la date de fin.");
+            setLoading(false);
+            return; //  Do not submit form if error
+            
+            
+        } else if (new Date(end_date) > new Date(currentDate)) {
+            setError("La date de fin ne peut pas être supérieure à la date courante.");
+            setLoading(false);
+            return; // Do not submit form if error
+        };
+
+        setLoading(true);
+        setError('');  // Reset errors before query
+        
+            
+        try {
+            
             const response = await axiosInstance.post('/predict/', {
-                ticker: ticker
+                ticker: ticker,  // Example : 'EUR/USD'
+                start_date: start_date,  // Format : 'YYYY-MM-DD'
+                end_date: end_date,  // Format : 'YYYY-MM-DD'
+                ticker_period: ticker_period  // Example : '1DAY'
             });
+
+            
             console.log(response.data);
+
+            
+            setRates(response.data.rates);
             const backendRoot = import.meta.env.VITE_BACKEND_ROOT
             const plotUrl = `${backendRoot}${response.data.plot_img}`
             const ma100Url = `${backendRoot}${response.data.plot_100_dma}`
             const ma200Url = `${backendRoot}${response.data.plot_200_dma}`
             const predictionUrl = `${backendRoot}${response.data.plot_prediction}`
-            
-            //console.log(plotUrl);
+            console.log(plotUrl);
             setPlot(plotUrl)
             setMA100(ma100Url)
             setMA200(ma200Url)
@@ -55,29 +88,52 @@ const Dashboard = () => {
             setMSE(response.data.mse)
             setRMSE(response.data.rmse)
             setR2(response.data.r2)
+
             // Set plots
             if(response.data.error){
                 setError(response.data.error)
             }
+            
         }catch (error) {
-            console.error('There was an error making th API request', error)
+            console.error('There was an error making th API request', error);
+            
         }finally {
             setLoading(false);
         }
-    }
+    };
 
     return (
         <div className='container'>
             <div className="row">
                 <div className="col-md-6 mx-auto">
                     <form onSubmit={handleSubmit}>
-                        <input type="text" className='form-control' placeholder='Enter Stock Ticker' 
-                        onChange={(e) => setTicker(e.target.value)} required
-                        />
-                        <small>{error && <div className='text-danger'>{error}</div>}</small>
-                        <button type='submit' className='btn btn-info mt-3 d-block mx-auto'>
-                            {loading ? <span><FontAwesomeIcon icon={faSpinner} spin /> Please Wait...</span>: 'See Prediction'}
-                        </button>
+                        <input type="text" className='form-control' placeholder='Ex: AAPL, TES, EUR/USD, GBP/USD, BTC/USD XAU/USD etc.' onChange={(e) => setTicker(e.target.value)} required />
+                        
+                    <div className='mt-3'>
+                        <label>Start Date:</label>
+                        <input type="date" className="form-control" onChange={(e) => setStartDate(e.target.value)} value={start_date} required/>
+                    </div>
+                        
+                    <div className='mt-3'>
+                        <label>End Date:</label>
+                        <input type="date" className="form-control" onChange={(e) => setEndDate(e.target.value)} value={end_date} required/>
+
+                    </div>
+                        
+                    <div className='mt-3'>
+                        <label>Ticker Period:</label>
+                        <select className='form-control' onChange={(e) => setTickerPeriod(e.target.value)} value={ticker_period}>
+                            <option value="1DAY">1 Day</option>
+                            <option value="1HRS">1 Hour</option>
+                            <option value="1MIN">1 Minute</option>
+                        </select>
+                    </div>
+
+                    <small>{error && <div className='text-danger'>{error}</div>}</small>
+                    
+                    <button type='submit' className='btn btn-info mt-3 d-block mx-auto'>
+                    {loading ? <span><FontAwesomeIcon icon={faSpinner} spin /> Please Wait...</span>: 'See Prediction'}
+                    </button>
                     </form>
                 </div>
 
