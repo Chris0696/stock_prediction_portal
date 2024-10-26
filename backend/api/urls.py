@@ -18,8 +18,6 @@ urlpatterns = [
 
     path('protected-view/', UserViews.ProtectedView.as_view()),
 
-    # Rates data
-    # path('rates/', RatesAPIView.as_view(), name='rates-api'),
 
     # Prediction API
     path('predict/', StockPredictionAPIView.as_view(), name='stock_prediction'),

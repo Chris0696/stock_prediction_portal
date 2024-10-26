@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'knox',
+   
     'accounts',
     'api',
     'corsheaders',
@@ -133,7 +133,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+"""
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES': ('knox.auth.TokenAuthentification',),
 }
@@ -143,6 +143,7 @@ REST_KNOX ={
     'TOKEN_TTL': timedelta(hours=48)
 }
 
+"""
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     # "https://sub.example.com",

@@ -16,11 +16,13 @@ const Dashboard = () => {
     const [rmse, setRMSE] = useState();
     const [r2, setR2] = useState();
     
-    const [start_date, setStartDate] = useState('2024-08-01'); // Start date par défaut
+    const [start_date, setStartDate] = useState('2023-01-01'); // Start date by default
 
     const currentDate = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
-    const [end_date, setEndDate] = useState(currentDate); // Date du jour actuel
-    const [ticker_period, setTickerPeriod] = useState('1DAY'); // Période par défaut (1 jour)
+    const [end_date, setEndDate] = useState(currentDate); //  Current date
+    
+    const [ticker_period, setTickerPeriod] = useState('1DAY'); // Période  by default
+    
 
 
     useEffect(() => {
@@ -46,13 +48,13 @@ const Dashboard = () => {
         
         // Date validation
         if (new Date(start_date) > new Date(end_date)) {
-            setError("La date de début ne peut pas être supérieure à la date de fin.");
+            setError("The start date cannot be greater than the end date.");
             setLoading(false);
             return; //  Do not submit form if error
             
             
         } else if (new Date(end_date) > new Date(currentDate)) {
-            setError("La date de fin ne peut pas être supérieure à la date courante.");
+            setError("The end date cannot be greater than the current date.");
             setLoading(false);
             return; // Do not submit form if error
         };
@@ -107,7 +109,7 @@ const Dashboard = () => {
             <div className="row">
                 <div className="col-md-6 mx-auto">
                     <form onSubmit={handleSubmit}>
-                        <input type="text" className='form-control' placeholder='Ex: AAPL, TES, EUR/USD, GBP/USD, BTC/USD XAU/USD etc.' onChange={(e) => setTicker(e.target.value)} required />
+                        <input type="text" className='form-control' placeholder='Ex: BRL/EUR, USDT/EUR, EUR/USD, GBP/USD, BTC/USD XAU/USD etc.' onChange={(e) => setTicker(e.target.value.toUpperCase())} value={ticker} required />
                         
                     <div className='mt-3'>
                         <label>Start Date:</label>

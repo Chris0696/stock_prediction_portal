@@ -20,6 +20,7 @@ class RatesDataManager:
 
     def convert_rates_to_date_value_format(self, rates_data):
         """Convert rates data to the desired date-value format."""
+        # print([{"Date": r["time_period_start"][:10], "Close": r["rate_close"]} for r in rates_data])
         return [{"Date": r["time_period_start"][:10], "Close": r["rate_close"]} for r in rates_data]
 
     def get_and_manage_rates_data(self, assets, start_date, end_date, ticker_period):
@@ -41,6 +42,9 @@ class RatesDataManager:
     
         rates = []
 
+        exclude_nb_days_start = 0
+        exclude_nb_days_end = 0
+
         if path.exists(data_filename):
             rates = self.load_json_data_from_file(data_filename)
             if rates:
@@ -59,6 +63,9 @@ class RatesDataManager:
                     # saved_data_date_start - timedelta(1) because we don't want to include an existing date
                     rates = self.convert_rates_to_date_value_format(rates_start) + rates
 
+                elif start_date > saved_data_date_start:
+                    exclude_nb_days_start = (start_date - saved_data_date_start).days
+
                 # Is the new end_date greater than the one already saved (saved_data_date_end)?
                 if end_date > saved_data_date_end:
                     print(f"Fetching data from {saved_data_date_end + timedelta(1)} to {end_date}")
@@ -66,12 +73,22 @@ class RatesDataManager:
                     # saved_data_date_end + timedelta(1) because we don't want to include an existing date
                     rates += self.convert_rates_to_date_value_format(rates_end)
 
+                elif end_date < saved_data_date_end:
+                    exclude_nb_days_end = (saved_data_date_end - end_date).days
+
                 # Consolidate data (update json file)
                 self.save_rates_data_to_file(data_filename, rates)
             else:
                 rates = self._fetch_and_save_rates(data_filename, assets, start_date, end_date)
         else:
             rates = self._fetch_and_save_rates(data_filename, assets, start_date, end_date)
+
+        if exclude_nb_days_start > 0:
+            rates = rates[exclude_nb_days_start:]  # if exclude_nb_days_start = 5, delete 5 first values.
+
+        if exclude_nb_days_end > 0:
+            rates = rates[:-exclude_nb_days_start]  # if exclude_nb_days_end = 5, delete last 5 values.
+
 
         return rates
 

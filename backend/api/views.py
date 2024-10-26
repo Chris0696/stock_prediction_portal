@@ -15,67 +15,13 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.models import load_model
 from sklearn.metrics import mean_squared_error, r2_score
 from .api_service import APIService
-from .rates_data_manager import RatesDataManager  # Import de la classe que nous venons de créer
+from .rates_data_manager import RatesDataManager 
+from .rates_data_processing import MovingAverageCalculator
 from datetime import date, timedelta, datetime
 from .models import StockPredictionResult
 from rest_framework.permissions import IsAuthenticated
 
-"""
-class RatesAPIView(APIView):
-    def post(self, request):
-        serializer = RateSerializer(data=request.data)
-        if serializer.is_valid():
-        # Récupérer les paramètres du frontend
-            ticker = serializer.validated_data['ticker']  #e.g. 'EUR/USD'
-
-            start_date_normal = serializer.validated_data['start_date']  # Format YYYY-MM-DD
-            end_date_normal = serializer.validated_data['end_date']  # Format YYYY-MM-DD
-
-            start_date_str = start_date_normal.strftime("%Y-%#m-%#d") # Format YYYY-M-D
-            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
-
-            end_date_str = end_date_normal.strftime("%Y-%#m-%#d")  # Format YYYY-M-D
-            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date() - timedelta(1)
-
-            ticker_period = serializer.validated_data['ticker_period']  # e.g. '1DAY'
-            
-            
-            print(f"Ticker: {ticker}, Start Date: {start_date}, End Date: {end_date}, Ticker Period: {ticker_period}")
-            try:
-                # Créer une instance de RatesDataManager
-                # Créez une instance de la classe APIService 
-                api_service = APIService(ticker, ticker_period)
-                # Maintenant, passez l'instance api_service en argument lors de la création de rates_manager
-                rates_manager = RatesDataManager(api_service)
-
-                # Appel à la méthode pour récupérer les données
-                rates = rates_manager.get_and_manage_rates_data(ticker, start_date, end_date, ticker_period)
-
-                # # Validation de base
-                if not ticker or not start_date or not end_date or not ticker_period:
-                    return Response({"error": "All parameters (ticker, start_date, end_date, ticker_period) are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-                
-                if rates is None:
-                    return Response({"error": "No data found for the specified parameters."}, status=status.HTTP_404_NOT_FOUND)
-                
-                return Response({
-                    'ticker': ticker,
-                    'start_date': start_date,
-                    'end_date' : end_date,
-                    'ticker_period': ticker_period,
-                    }, status=status.HTTP_200_OK)
-            
-            except Exception as e:
-                return Response({"error": str(e)}, 
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-        else:
-            # Les données ne sont pas valides
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)"""
        
-
-
 class StockPredictionAPIView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
@@ -109,87 +55,102 @@ class StockPredictionAPIView(APIView):
             ticker_period = serializer.validated_data['ticker_period']  # e.g. '1DAY'
 
             print(f"Ticker: {ticker}, Start Date: {start_date}, End Date: {end_date}, Ticker Period: {ticker_period}")
-            try:
-                # Create an instance of RatesDataManager
-                # Create an instance of the APIService class
- 
-                api_service = APIService(ticker, ticker_period)
-                
-                # Now, pass the api_service instance as an argument when creating rates_manager
-                rates_manager = RatesDataManager(api_service)
-                
-                #  Call method to retrieve data
+            # try:
+            # Create an instance of RatesDataManager
+            # Create an instance of the APIService class
 
-                rates = rates_manager.get_and_manage_rates_data(ticker, start_date, end_date, ticker_period)
-                
-                #  Check if API has returned an error (wrong ticker)
-
-                if isinstance(rates, dict) and "error" in rates:
-                    return Response({"error": rates["error"], 'status': status.HTTP_404_NOT_FOUND})
-
-                #  Check if data has been returned
-
-                if rates is None or len(rates) == 0:
-                    return Response({"error": "No Data found for given ticker.", 'status': status.HTTP_404_NOT_FOUND})
-        
+            api_service = APIService(ticker, ticker_period)
             
-            except Exception as e:
-                return Response({"error": str(e)}, 
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+            # Now, pass the api_service instance as an argument when creating rates_manager
+            rates_manager = RatesDataManager(api_service)
+            
+            #  Call method to retrieve data
+
+            rates = rates_manager.get_and_manage_rates_data(ticker, start_date, end_date, ticker_period)
+            
+            # Extract rate dates
+            
+          
+            #  Check if API has returned an error (wrong ticker)
+
+            if isinstance(rates, dict) and "error" in rates:
+                return Response({"error": rates["error"], 'status': status.HTTP_404_NOT_FOUND})
+
+            #  Check if data has been returned
+
+            if rates is None or len(rates) == 0:
+                
+                return Response({"error": "No Data found for given ticker.", 'status': status.HTTP_404_NOT_FOUND})
+            
+
+            rates_dates = [datetime.strptime(r["Date"], "%Y-%m-%d") for r in rates]
             
             #  Convert rates to Pandas DataFrame
-
 
             df = pd.DataFrame(rates)
             print(df)
             df['Date'] = pd.to_datetime(df['Date'])
             df = df.set_index('Date')
             
-            
             # Generate Basic Plot
             plt.switch_backend('AGG')
             plt.figure(figsize=(14, 6))
             plt.plot(df['Close'], label='Closing Price')
             plt.title(f"Closing Price of {ticker}")
-            plt.xlabel('Days')
+            plt.xlabel('Years')
             plt.ylabel('Close Price')
             plt.legend()
 
             # Save the plot to a file
-            ticker_filename = ticker.replace("/", "")
-            print(ticker_filename)
-            plot_img_path = f'{ticker_filename}_plot.png'
-            plot_img_url = save_plot(plot_img_path) # I can't retrieve the image's clickable URL in the backend
-            print(plot_img_url)
-
         
-            # 100 Days moving average
-            ma100 = df['Close'].rolling(100).mean()
-            plt.switch_backend('AGG')
-            plt.figure(figsize=(14, 6))
-            plt.plot(df['Close'], label='Closing Price')
-            plt.plot(ma100, 'r', label='100 DMA')
-            plt.title(f"100 Days Moving Average of {ticker}")
-            plt.xlabel('Days')
-            plt.ylabel('Price')
-            plt.legend()
-            plot_img_path = f'{ticker_filename}_100_dma.png'
-            plot_100_dma = save_plot(plot_img_path)
+            # Ticker name without special characters
+            ticker_filename = ticker.replace("/", "")
+            
+            plot_img_path = f'{ticker_filename}_plot.png'
+            plot_img_url = save_plot(ticker_filename, plot_img_path) # I can't retrieve the image's clickable URL in the backend
+            
 
-            # 200 Days moving average
-            ma200 = df['Close'].rolling(200).mean()
+            # 100 Days moving average
+            # ma100 = df['Close'].rolling(100).mean()
+            ma100_calculator = MovingAverageCalculator(rates, 100)
+            ma100  = ma100_calculator.compute_moving_average()
+            ma100_values = [r["Close"] for r in ma100]
             plt.switch_backend('AGG')
             plt.figure(figsize=(14, 6))
             plt.plot(df['Close'], label='Closing Price')
-            plt.plot(ma100, 'r', label='100 DMA')
-            plt.plot(ma200, 'g', label='200 DMA')
-            plt.title(f"200 Days Moving Average of {ticker}")
-            plt.xlabel('Days')
+            plt.plot(rates_dates, ma100_values, 'r', label='100 DMA')
+            
+            plt.title(f"100 Days Moving Average of {ticker}")
+            plt.xlabel('Years')
             plt.ylabel('Price')
             plt.legend()
-            plot_img_path = f'{ticker_filename}_200_dma.png'
-            plot_200_dma = save_plot(plot_img_path)
+            
+            plot_100_dma = save_plot(ticker_filename, "100_dma")
+
+            moving_average_intervals = [50, 100, 150, 200]
+            moving_average_list = []
+
+            
+            for interval in moving_average_intervals:
+                calculator = MovingAverageCalculator(rates, interval)
+                moving_averages = calculator.compute_moving_average()
+                moving_average_list.append((moving_averages, interval))
+            
+            # Days movings averages
+            plt.switch_backend('AGG')
+            plt.figure(figsize=(14, 6))
+            plt.plot(df['Close'], label='Closing Price')
+
+            for moving_average_item in moving_average_list:
+                moving_average_values = [r["Close"] for r in moving_average_item[0]]
+                plt.plot(rates_dates, moving_average_values, label=f"MA{moving_average_item[1]}")
+            
+            plt.title(f"Days Movings Averages of {ticker}")
+            plt.xlabel('Years')
+            plt.ylabel('Price')
+            plt.legend()
+            
+            plot_200_dma = save_plot(ticker_filename, "200_dma")
 
             # Splitting data into Training and Testing datasets
             data_traning = pd.DataFrame(df['Close'][0:int(len(df)*0.7)])
@@ -235,8 +196,8 @@ class StockPredictionAPIView(APIView):
             plt.xlabel('Days')
             plt.ylabel('Price')
             plt.legend()
-            plot_img_path = f'{ticker_filename}_final_prediction.png'
-            plot_prediction = save_plot(plot_img_path)
+            # Sauvegarde de la prédiction finale
+            plot_prediction = save_plot(ticker_filename, "final_prediction")
 
             # Model Evaluation
             # Mean Squard Error (MSE)

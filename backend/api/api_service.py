@@ -10,13 +10,12 @@ class APIService:
         self.assets = assets
         self.ticker_period = ticker_period
         self.headers = {
-            'Accept': 'text/plain',
+            #'Accept': 'text/plain',
             'X-CoinAPI-Key': API_KEY
         }
         self.base_url = BASE_URL
-        self.payload = {}
 
-    # The objective is to combine intervals of days following a quota of 100 days according to start_date and end_date (since the API collects on 100 days/request).
+    # The objective is to combine intervals of days following a quota of max_days = 100 days according to start_date and end_date (since the API collects on 100 days/request).
     # date_start / date_end: date objects
     # max_days : int
     # start : 1/5/2024
@@ -26,6 +25,7 @@ class APIService:
     def get_dates_intervals(self, start_date, end_date, max_days):
         diff = end_date - start_date
         diff_days = abs(diff.days)
+        print("There are in total", diff_days, "days between", start_date, "and", end_date)
         dates_intervals = []
         interval_begin_date = start_date
 
@@ -45,22 +45,29 @@ class APIService:
     def get_exchange_rates(self, start_date, end_date):
         start_date_str = start_date.strftime("%Y-%m-%d")
         end_date_str = (end_date + timedelta(1)).strftime("%Y-%m-%d")
-        print(f"Collection of new data from {start_date}, to {end_date}")
-
+        print(f"Collection of new data from {start_date} to {end_date}")
+        # url = self.base_url + 'v1/assets'
         url = f"{self.base_url}v1/exchangerate/{self.assets}/history?period_id={self.ticker_period}&time_start={start_date_str}T00:00:00&time_end={end_date_str}T00:00:00"
-
-        response = requests.request("GET", url, headers=self.headers, data=self.payload)
+        
+        response = requests.get(url, headers=self.headers)
 
         if response.status_code == 200:
-            print("Your remaining quota is :", response.headers["x-ratelimit-quota-remaining"])
-            return json.loads(response.text)
+            # print("Your remaining quota is :", response.headers["x-ratelimit-quota-remaining"])
+            data = json.loads(response.text)
+            # nb_assets = len(data)
+            
+            return data
         
         elif response.status_code == 550:
             # print(f"API Error: Please enter a valid ticker")
             return {"error": "Please enter a valid ticker"}
         elif response.status_code == 429:
             print(f"API Error: {response.status_code}")
+            return {"error": "This API Key is no longer functional. Please subscribe to another service."}
+        elif response.status_code == 500:
+            print(f"API Error: {response.status_code}")
             return {"error": "The daily quota (100) reserved for data collection is exhausted. Please wait 24 hours."}
+        
         else:
             print(f"API Error: {response.status_code}")
             return {"error": {response.status_code}}
