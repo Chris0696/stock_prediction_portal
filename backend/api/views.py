@@ -50,7 +50,7 @@ class StockPredictionAPIView(APIView):
             end_date_str = end_date_normal.strftime("%Y-%#m-%#d")  # Format YYYY-M-D
 
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
-            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date() - timedelta(1)
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date() - timedelta(1) # <-- Because we don't yet have the closing price for the current day.
 
             ticker_period = serializer.validated_data['ticker_period']  # e.g. '1DAY'
 
@@ -210,7 +210,7 @@ class StockPredictionAPIView(APIView):
             # R-Squared
             r2 = r2_score(y_test, y_predicted)
 
-            # Enregistrer les résultats dans la base de données
+            # Save results in database
             prediction_result = StockPredictionResult.objects.create(
                 user=user,
                 ticker=ticker,

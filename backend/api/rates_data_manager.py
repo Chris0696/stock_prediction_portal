@@ -20,7 +20,7 @@ class RatesDataManager:
 
     def convert_rates_to_date_value_format(self, rates_data):
         """Convert rates data to the desired date-value format."""
-        # print([{"Date": r["time_period_start"][:10], "Close": r["rate_close"]} for r in rates_data])
+        
         return [{"Date": r["time_period_start"][:10], "Close": r["rate_close"]} for r in rates_data]
 
     def get_and_manage_rates_data(self, assets, start_date, end_date, ticker_period):

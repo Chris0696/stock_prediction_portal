@@ -4,4 +4,4 @@ BASE_URL = "https://rest.coinapi.io/"
 
 # OR 
 
-API_KEY = "B587E217-B6DD-4216-93C0-2D022E405F34" # because we have 100 limites
+API_KEY = "B587E217-B6DD-4216-93C0-2D022E405F34" # because we have 100 limites/day
