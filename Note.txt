@@ -1,0 +1,52 @@
+Information on new or additional features included in the Stock Prediction Portal project
+Github : https://github.com/Chris0696/stock_prediction_portal.git
+
+API:
+
+I wanted to develop my skills in data processing algorithms and analysis. To this end, instead of using yfinance, 
+I developed an algorithm of my own to retrieve, filter and store data for future use.
+So I used an API and developed code for it.
+But my algorithm has some shortcomings when it comes to time ranges: 1 hour, 1 minute, 1 second, etc.
+
+JUPYTER NOTE BOOK
+Stock_Prediction_Using_AlgoAPI_and_LSTM : the implementation of my algorithm and the course instructions.
+
+Future_Stock_Prediction_Using_LSTM : Prediction of future closing prices without testing.
+I've applied the guidelines you've given me and I'd like to have your opinions and corrections on my code proposal.
+
+DJANGO :
+
+Accounts :
+class UserManager to customize Django's user model
+
+class User allowing users to choose their profile type according to their activity.
+
+Views :
+class CustomTokenObtainPairView : To customize Token's features
+
+class ActivityChoicesAPIView(APIView): For front-end rendering
+
+class LoginAPIView : features for # Generer JWT tokens
+
+class UdapteUserView to update the user
+
+api config for url and API key
+
+api service: call the API and filter data
+
+rates data manager: create a file, store historical data and update it continuously on each user request. 
+request.
+
+class StockPredictionAPIView uses my algorithm instead of yfinance and makes the prediction
+
+class StockPredictionResult : Storage of user-defined prediction information.
+
+I have encountered a few difficulties: 
+- (Resolved) The prediction should be independent of other users but I notice that when user A requests the prediction of
+of EUR/USD between 2014-01-01 to 2024-10-22 and user B also requests the prediction of EUR/USD between 2024-01-12 to 2024-08-01, 
+they are presented with the same results, even though my json files are still updated.
+
+
+-I wanted the images loaded in the backend according to the user to have a dynamic clickable url to check if everything went as planned. 
+So I made a few modifications to the save_plot() function, but it didn't work.
+
