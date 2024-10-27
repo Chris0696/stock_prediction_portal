@@ -87,7 +87,7 @@ class RatesDataManager:
             rates = rates[exclude_nb_days_start:]  # if exclude_nb_days_start = 5, delete 5 first values.
 
         if exclude_nb_days_end > 0:
-            rates = rates[:-exclude_nb_days_start]  # if exclude_nb_days_end = 5, delete last 5 values.
+            rates = rates[:-exclude_nb_days_end]  # if exclude_nb_days_end = 5, delete last 5 values.
 
 
         return rates
