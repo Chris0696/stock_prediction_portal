@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import axiosInstance from 'src/axiosInstance';
+import axiosInstance from '../../axiosInstance';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 

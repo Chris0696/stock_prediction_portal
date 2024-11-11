@@ -147,7 +147,7 @@ REST_KNOX ={
 """
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    # "https://sub.example.com",
+    "https://stockpredictionportal.srv506012.hstgr.cloud",
     # "http://localhost:8080",
     # "http://127.0.0.1:9000",
 ]
