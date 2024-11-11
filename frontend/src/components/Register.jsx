@@ -20,7 +20,7 @@ const Register = () => {
     useEffect(() => {
         const fetchActivityChoices = async () => {
             try {
-                const response = await axios.get('https://stockpredictionbackend.srv506012.hstgr.cloud/api/v1/activity-choices/');
+                const response = await axios.get('https://http://127.0.0.1:8000/api/v1/activity-choices/');
                 setActivityOptions(response.data);
             } catch (error) {
                 console.error('Error fetching activity choices:', error);
@@ -48,7 +48,7 @@ const Register = () => {
         };
         
         try {
-            const response = await axios.post('https://stockpredictionbackend.srv506012.hstgr.cloud/api/v1/register/', userData);
+            const response = await axios.post('https://http://127.0.0.1:8000/api/v1/register/', userData);
             console.log('response.data===>', response.data);
             console.log('Registration successful');
             setErrors({})
