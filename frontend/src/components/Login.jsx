@@ -30,7 +30,7 @@ const Login = () => {
     console.log('userData===>', userData);
 
     try{
-        const response = await axios.post('https://stockpredictionbackend.srv506012.hstgr.cloud/api/v1/token/', userData);
+        const response = await axios.post('https://stockpredictionbackendapp.srv506012.hstgr.cloud/api/v1/token/', userData);
         localStorage.setItem('accessToken', response.data.access)
         localStorage.setItem('refreshToken', response.data.refresh)
         console.log('Login successful');

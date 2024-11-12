@@ -66,6 +66,7 @@ class APIService:
         elif response.status_code == 550:
             # print(f"API Error: Please enter a valid ticker")
             return {"error": "Please enter a valid ticker"}
+            
         
         elif response.status_code == 429:
             print(f"API Error: {response.status_code}")

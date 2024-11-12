@@ -45,6 +45,7 @@ const Dashboard = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError(''); // Réinitialiser les erreurs avant la requête
         
         // Date validation
         if (new Date(start_date) > new Date(end_date)) {
@@ -74,26 +75,29 @@ const Dashboard = () => {
 
             
             console.log(response.data);
-
             
-            setRates(response.data.rates);
-            const backendRoot = import.meta.env.VITE_BACKEND_ROOT
-            const plotUrl = `${backendRoot}${response.data.plot_img}`
-            const ma100Url = `${backendRoot}${response.data.plot_100_dma}`
-            const ma200Url = `${backendRoot}${response.data.plot_200_dma}`
-            const predictionUrl = `${backendRoot}${response.data.plot_prediction}`
-            console.log(plotUrl);
-            setPlot(plotUrl)
-            setMA100(ma100Url)
-            setMA200(ma200Url)
-            setPrediction(predictionUrl)
-            setMSE(response.data.mse)
-            setRMSE(response.data.rmse)
-            setR2(response.data.r2)
+            if (response.data.error) {
+                setError(response.data.error);
+            } else {
+                // Reset error message if the response is successful
+                setError('');
+                setRates(response.data.rates);
+            
 
-            // Set plots
-            if(response.data.error){
-                setError(response.data.error)
+                const backendRoot = import.meta.env.VITE_BACKEND_ROOT
+                const plotUrl = `${backendRoot}${response.data.plot_img}`
+                const ma100Url = `${backendRoot}${response.data.plot_100_dma}`
+                const ma200Url = `${backendRoot}${response.data.plot_200_dma}`
+                const predictionUrl = `${backendRoot}${response.data.plot_prediction}`
+                
+                setPlot(plotUrl)
+                setMA100(ma100Url)
+                setMA200(ma200Url)
+                setPrediction(predictionUrl)
+                setMSE(response.data.mse)
+                setRMSE(response.data.rmse)
+                setR2(response.data.r2)
+            
             }
             
         }catch (error) {
